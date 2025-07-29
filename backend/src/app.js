@@ -20,19 +20,31 @@ const app = express();
 const server = http.createServer(app);
 
 // ✅ Use CORS middleware properly
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://developer-radar-orcin.vercel.app',
+];
+
 app.use(cors({
-  origin: 'http://localhost:3000', // your frontend origin
-  credentials: true, // allow credentials like cookies or Authorization headers
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
 
 // Initialize Socket.IO
 const io = socketio(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
-    credentials: true
+    credentials: true,
   }
 });
+
 console.log('Socket.IO initialized');
 // Connect to database
 connectDB();
