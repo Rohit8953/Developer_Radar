@@ -30,14 +30,17 @@ export const AuthProvider = ({ children }) => {
 
     const userdata = res?.data?.data?.user;
     const statusCode = res?.data?.statusCode;
+    const token = res?.data?.token;
 
     if (statusCode === 200) {
       console.log('✅Login successful:');
-      console.log('User data:', userdata);
+      console.log('token data:', token);
       setUser(userdata);
       toast.success('Login successful! 🎉');
       navigate("/");
       localStorage.setItem('user', JSON.stringify(userdata));
+      localStorage.setItem('token', token);
+
     } else {
       console.error('Login failed:', res?.data);
       toast.error(res?.data?.message || 'Login failed');
