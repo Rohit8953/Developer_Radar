@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true, select: false }, // ✅ fix here
+  email: { type: String, required: true, unique: true, index: true },
+  password: { type: String, required: true }, // ✅ fix here
   name: { type: String, required: true },
   profilePicture: {
     type: String,
@@ -57,8 +57,6 @@ const userSchema = new mongoose.Schema({
   socketId: String,
 }, { timestamps: true });
 
-// Indexes
-userSchema.index({ email: 1 });
 userSchema.index({ 'location.coordinates': '2dsphere' });
 
 // Password hashing middleware
