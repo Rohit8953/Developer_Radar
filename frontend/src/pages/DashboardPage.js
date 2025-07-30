@@ -19,6 +19,7 @@ const DashboardPage = () => {
     }
     getuserdata();
   }, []);
+  
   // Convert GeoJSON coordinates to lat/lng object
   const getUserCoordinates = () => {
     if (!user?.location?.coordinates) return null;

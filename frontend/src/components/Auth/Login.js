@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../services/auth';
 import { Button, TextField, Typography, Box, Link, CircularProgress } from '@mui/material';
 
@@ -8,15 +8,47 @@ const Login = () => {
     email: 'tsha4rlal@gmail.com',
     password: '123456789',
   });
+  const [userLocation, setUserLocation] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+ // Get user's current coordinates
+  const getUserCoordinates = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const newLocation = { latitude, longitude };
+          setUserLocation(newLocation);
+        },
+        (error) => {
+          console.error('Geolocation error:', error.message);
+          setUserLocation(null); // Optional fallback
+        }
+      );
+    } else {
+      console.warn('Geolocation is not supported by this browser.');
+    }
+  };
+
+  useEffect(() => {
+    getUserCoordinates();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(formData);
+
+    const payload = {
+      ...formData,
+      location: userLocation, // include location in login data
+    };
+
+    console.log("Logging in with payload:", payload);
+
+    await login(payload); // Make sure your login function handles `location` in the backend
   };
 
   return (
@@ -53,7 +85,7 @@ const Login = () => {
         color="primary"
         size="large"
         sx={{ mt: 3 }}
-        disabled={loading}
+        disabled={loading || userLocation === null }
       >
         {loading ? <CircularProgress size={24} /> : 'Login'}
       </Button>

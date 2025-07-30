@@ -47,9 +47,45 @@ exports.register = async (req, res, next) => {
   }
 };
 
+// exports.login = async (req, res, next) => {
+//   try {
+//     const { email, password, location } = req.body;
+
+//     if (!email || !password) {
+//       return next(new AppError('Please provide email and password', 400));
+//     }
+
+//     const user = await User.findOne({ email }).select('+password');
+
+//     if (!user) {
+//       return next(new AppError('Incorrect email or password', 401));
+//     }
+
+//     const isMatch = await user.comparePassword(password);
+//     console.log('Password match:', isMatch);
+
+//     if (!isMatch) {
+//       return next(new AppError('Incorrect email or password', 401));
+//     }
+
+//     const token = signToken(user._id);
+
+//     res.status(200).json({
+//       statusCode: 200,
+//       status: 'success',
+//       token,
+//       data: {
+//         user
+//       }
+//     });
+//   } catch (err) {
+//     next(err); // This will send the error to your global error handler
+//   }
+// };
+
 exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, location } = req.body;
 
     if (!email || !password) {
       return next(new AppError('Please provide email and password', 400));
@@ -62,10 +98,19 @@ exports.login = async (req, res, next) => {
     }
 
     const isMatch = await user.comparePassword(password);
-    console.log('Password match:', isMatch);
-
     if (!isMatch) {
       return next(new AppError('Incorrect email or password', 401));
+    }
+
+    // ✅ Update location if provided
+    if (location && location.latitude && location.longitude) {
+      user.location = {
+        type: 'Point',
+        coordinates: [location.longitude, location.latitude],
+        accuracy: location.accuracy || null,
+        lastUpdated: Date.now()
+      };
+      await user.save();
     }
 
     const token = signToken(user._id);
@@ -79,6 +124,6 @@ exports.login = async (req, res, next) => {
       }
     });
   } catch (err) {
-    next(err); // This will send the error to your global error handler
+    next(err);
   }
 };
