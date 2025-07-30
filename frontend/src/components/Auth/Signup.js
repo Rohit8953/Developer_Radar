@@ -28,7 +28,8 @@ const Signup = () => {
     await signup({
       name: formData.name,
       email: formData.email,
-      password: formData.password
+      password: formData.password,
+      confirmPassword : formData.confirmPassword
     });
   };
 
